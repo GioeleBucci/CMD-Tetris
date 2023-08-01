@@ -75,6 +75,34 @@ char pieces[7][4][4] = {
 
 /* --------------------------------------------------------------------------------- */
 
+void rotateMatrix(int n, int matrix[n][n]) {
+    // Rotate layer by layer, starting from outermost and moving inward
+    for (int layer = 0; layer < n / 2; layer++) {
+        int first = layer;
+        int last = n - 1 - layer;
+
+        // Perform circular rotation for each layer
+        for (int i = first; i < last; i++) {
+            int offset = i - first;
+
+            // Save the top element
+            int top = matrix[first][i];
+
+            // Move left element to top
+            matrix[first][i] = matrix[last - offset][first];
+
+            // Move bottom element to left
+            matrix[last - offset][first] = matrix[last][last - offset];
+
+            // Move right element to bottom
+            matrix[last][last - offset] = matrix[i][last];
+
+            // Move top element to right
+            matrix[i][last] = top;
+        }
+    }
+}
+
 /// Function to print the colored character
 void printColoredChar(unsigned char ch, int pieceType) {
     printf("\x1b[3%dm%c\x1b[0m", (pieceType == 6 ? YELLOW : pieceType + 1), ch);
@@ -83,7 +111,7 @@ void printColoredChar(unsigned char ch, int pieceType) {
 void generateNewTetromino(){
     currentPieceType = rand()%7;
     currentPieceRow = 1;
-    currentPieceCol = WIDTH / 2 - 1;
+    currentPieceCol = WIDTH / 2 - 2;
 }
 
 void initGrid(Game *game) {
@@ -169,7 +197,8 @@ Point2D getInputs() {
     if (input == 'a') dir = newPoint2D(0, -1);
     if (input == 's') dir = newPoint2D(1, 0);
     if (input == 'd') dir = newPoint2D(0, 1);
-
+    if(input == 'z')
+        rotateMatrix(4,pieces[currentPieceType]);
     return dir;
 }
 
