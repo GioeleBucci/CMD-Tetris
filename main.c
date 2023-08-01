@@ -12,7 +12,6 @@
 
 #define FPS 6
 
-
 typedef struct Game {
     /* The grid contains only the already placed tetrominos
      * not the falling one. The value contained in the 2d array
@@ -31,6 +30,8 @@ enum tetrominoes {
 int currentPieceRow, currentPieceCol;
 int currentPieceType;
 int currentPiece[4][4];
+int bag[7]; // contains a permutation of the 7 pieces
+int bagIndex = 0; // 0 - 6, current element of the bag dropping
 
 char pieces[7][4][4] = {
         { // Z
@@ -78,6 +79,20 @@ char pieces[7][4][4] = {
 };
 
 /* --------------------------------------------------------------------------------- */
+
+/// Perform Fisher-Yates shuffle on pieces bag
+void shuffleBag() {
+    for (int i = 6; i >= 0; --i) {
+        int x = rand() % (i + 1);
+        int temp = bag[i];
+        bag[i] = bag[x];
+        bag[x] = temp;
+    }
+    printf("\n");
+    for (int i = 0; i < 7; ++i) {
+        printf("%d ", bag[i]);
+    }
+}
 
 /// rotates all tetrominoes except the I piece
 void rotateTetromino(int matrix[4][4], int pieceType, bool clockwise) {
@@ -134,16 +149,23 @@ void printColoredChar(unsigned char ch, int pieceType) {
     printf("\x1b[3%dm%c\x1b[0m", (pieceType == 6 ? YELLOW : pieceType + 1), ch);
 }
 
+/// generates a tetromino according to the current bagIndex
 void generateNewTetromino() {
-    currentPieceType = rand() % 7;
+    currentPieceType = bag[bagIndex];
     currentPieceRow = 1;
     currentPieceCol = WIDTH / 2 - 2;
     for (int i = 0; i < 4; ++i)
         for (int j = 0; j < 4; ++j)
             currentPiece[i][j] = pieces[currentPieceType][i][j];
+
+    // if all the pieces of the bag are placed reshuffle the bag and restart the cycle
+    if(bagIndex == 6){
+        bagIndex = 0;
+        shuffleBag();
+    } else bagIndex++;
 }
 
-void initGrid(Game *game) {
+void initGame(Game *game) {
 
     for (int i = 0; i < HEIGHT; ++i)
         for (int j = 0; j < WIDTH; ++j)
@@ -156,6 +178,12 @@ void initGrid(Game *game) {
     time_t t;
     time(&t);
     srand((unsigned int) t);
+
+    // generate bag and shuffle it
+    for (int i = 0; i < 7; ++i)
+        bag[i] = i;
+    shuffleBag();
+    bagIndex = 0;
 
     //generate first piece
     generateNewTetromino();
@@ -190,18 +218,6 @@ void refresh(Game *game) {
 
 }
 
-void placePieceAt(Game *game, int row, int col, int pieceType) {
-    currentPieceRow = row;
-    currentPieceCol = col;
-}
-
-void dropPiece() {
-    //if (!isCollision(1, 0))
-    //clearPiece();
-    currentPieceRow++;
-    //placePiece();
-}
-
 bool isCollision(const Game *game, int rowOffset, int colOffset, int pieceType) {
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
@@ -215,6 +231,15 @@ bool isCollision(const Game *game, int rowOffset, int colOffset, int pieceType) 
         }
     }
     return false;
+}
+
+void placeTetromino(Game *game, int type) {
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            if (currentPiece[i][j] != ' ')
+                game->grid[currentPieceRow + i][currentPieceCol + j] = type;
+        }
+    }
 }
 
 Point2D getInputs() {
@@ -231,15 +256,6 @@ Point2D getInputs() {
         return dir;
 }
 
-void placeTetromino(Game *game, int type) {
-    for (int i = 0; i < 4; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            if (currentPiece[i][j] != ' ')
-                game->grid[currentPieceRow + i][currentPieceCol + j] = type;
-        }
-    }
-}
-
 void debugPrintTetromino() {
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
@@ -251,24 +267,8 @@ void debugPrintTetromino() {
 
 int main() {
     Game game;
-    initGrid(&game);
+    initGame(&game);
     refresh(&game);
-
-    printf("current tetromino\n");
-    debugPrintTetromino();
-    rotateTetromino(currentPiece,currentPieceType,true);
-    printf("current tetromino\n");
-    debugPrintTetromino();
-    rotateTetromino(currentPiece,currentPieceType,true);
-    printf("current tetromino\n");
-    debugPrintTetromino();
-    rotateTetromino(currentPiece,currentPieceType,true);
-    printf("current tetromino\n");
-    debugPrintTetromino();
-    //rotateTetromino(currentPiece);
-
-    exit(1);
-
 
     clock_t t;
     while (1) {
