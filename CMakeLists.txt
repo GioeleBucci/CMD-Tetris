@@ -3,4 +3,4 @@ project(tetris C)
 
 set(CMAKE_C_STANDARD 17)
 
-add_executable(tetris main.c points2D.c points2D.h)
+add_executable(tetris main.c points2D.c points2D.h tetris.c tetris.h)
