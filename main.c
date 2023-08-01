@@ -10,7 +10,7 @@
 #define WIDTH 12
 #define HEIGHT 22
 
-#define FPS 6
+#define FPS 30
 
 typedef struct Game {
     /* The grid contains only the already placed tetrominos
@@ -88,14 +88,14 @@ void shuffleBag() {
         bag[i] = bag[x];
         bag[x] = temp;
     }
-    printf("\n");
-    for (int i = 0; i < 7; ++i) {
-        printf("%d ", bag[i]);
-    }
 }
 
 /// rotates all tetrominoes except the I piece
-void rotateTetromino(int matrix[4][4], int pieceType, bool clockwise) {
+void rotateTetromino(int piece[4][4], int pieceType, bool clockwise) {
+
+    // O piece doesn't rotate
+    if(pieceType == PIECE_O)
+        return;
 
     // to rotate a piece counterclockwise just rotate it clockwise 3 times
     for (int rotations = 0; rotations < (!clockwise ? 1 : 3); ++rotations) {
@@ -105,11 +105,11 @@ void rotateTetromino(int matrix[4][4], int pieceType, bool clockwise) {
 
             for (int i = 0; i < 4 / 2; i++) {
                 for (int j = i; j < 4 - i - 1; j++) {
-                    int temp = matrix[i][j];
-                    matrix[i][j] = matrix[4 - 1 - j][i];
-                    matrix[4 - 1 - j][i] = matrix[4 - 1 - i][4 - 1 - j];
-                    matrix[4 - 1 - i][4 - 1 - j] = matrix[j][4 - 1 - i];
-                    matrix[j][4 - 1 - i] = temp;
+                    int temp = piece[i][j];
+                    piece[i][j] = piece[4 - 1 - j][i];
+                    piece[4 - 1 - j][i] = piece[4 - 1 - i][4 - 1 - j];
+                    piece[4 - 1 - i][4 - 1 - j] = piece[j][4 - 1 - i];
+                    piece[j][4 - 1 - i] = temp;
                 }
             }
 
@@ -120,7 +120,7 @@ void rotateTetromino(int matrix[4][4], int pieceType, bool clockwise) {
             // Copy the original matrix to the temporary matrix
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {
-                    temp[i][j] = matrix[i][j];
+                    temp[i][j] = piece[i][j];
                 }
             }
 
@@ -136,7 +136,7 @@ void rotateTetromino(int matrix[4][4], int pieceType, bool clockwise) {
 
                     // Check if the rotated position is within the matrix boundaries
                     if (rotated_row >= 0 && rotated_row < 4 && rotated_col >= 0 && rotated_col < 4) {
-                        matrix[i][j] = temp[rotated_row][rotated_col];
+                        piece[i][j] = temp[rotated_row][rotated_col];
                     }
                 }
             }
@@ -159,7 +159,7 @@ void generateNewTetromino() {
             currentPiece[i][j] = pieces[currentPieceType][i][j];
 
     // if all the pieces of the bag are placed reshuffle the bag and restart the cycle
-    if(bagIndex == 6){
+    if (bagIndex == 6) {
         bagIndex = 0;
         shuffleBag();
     } else bagIndex++;
@@ -218,11 +218,11 @@ void refresh(Game *game) {
 
 }
 
-bool isCollision(const Game *game, int rowOffset, int colOffset, int pieceType) {
+bool isCollision(const Game *game, int piece[4][4], int rowOffset, int colOffset) {
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
             // found block
-            if (currentPiece[i][j] != ' ') {
+            if (piece[i][j] != ' ') {
                 int row = currentPieceRow + i + rowOffset;
                 int col = currentPieceCol + j + colOffset;
                 if (game->grid[row][col] != AIR)
@@ -242,18 +242,31 @@ void placeTetromino(Game *game, int type) {
     }
 }
 
-Point2D getInputs() {
+Point2D getInputs(Game *game) {
+    scanf("%c");
+    fflush(stdin);
     int input;
     if (kbhit())
         input = tolower(getch()); //kbhit() is a non-blocking input function
     Point2D dir;
-    if (input == 'w') dir = newPoint2D(-1, 0);
     if (input == 'a') dir = newPoint2D(0, -1);
     if (input == 's') dir = newPoint2D(1, 0);
-    if (input == 'd') dir = newPoint2D(0, 1);
-    if (input == 'z')
-        //rotateMatrix(4, currentPiece);
-        return dir;
+
+    //handle rotations
+    if (input == 'z' || input == 'x'){
+        bool isClockwise = input == 'z' ? true : false;
+        // clone piece, rotate it and check for collisions
+        int newPiece[4][4];
+        for (int i = 0; i < 4; ++i)
+            for (int j = 0; j < 4; ++j)
+                newPiece[i][j] = currentPiece[i][j];
+        rotateTetromino(newPiece, currentPieceType, isClockwise);
+        if(!isCollision(game,newPiece,0,0))
+            rotateTetromino(currentPiece, currentPieceType, isClockwise);
+    }
+    //if (input == 'x') //counterclockwise rotation
+    //    rotateTetromino(currentPiece, currentPieceType, false);
+    return dir;
 }
 
 void debugPrintTetromino() {
@@ -274,13 +287,13 @@ int main() {
     while (1) {
         t = clock();
         fflush(stdin); //?
-        Point2D input = getInputs();
+        Point2D input = getInputs(&game);
         //check left or right movement
-        if (isSamePoint2D(input, POINT2D_LEFT) && !isCollision(&game, 0, -1, currentPieceType))
+        if (isSamePoint2D(input, POINT2D_LEFT) && !isCollision(&game,currentPiece, 0, -1))
             currentPieceCol--;
-        else if (isSamePoint2D(input, POINT2D_RIGHT) && !isCollision(&game, 0, 1, currentPieceType))
+        else if (isSamePoint2D(input, POINT2D_RIGHT) && !isCollision(&game,currentPiece, 0, 1))
             currentPieceCol++;
-        if (!isCollision(&game, 1, 0, currentPieceType)) {
+        if (!isCollision(&game,currentPiece, 1, 0)) {
             currentPieceRow++;
         } else {
             placeTetromino(&game, currentPieceType);
