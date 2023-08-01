@@ -75,30 +75,42 @@ char pieces[7][4][4] = {
 
 /* --------------------------------------------------------------------------------- */
 
-void rotateMatrix(int n, int matrix[n][n]) {
-    // Rotate layer by layer, starting from outermost and moving inward
-    for (int layer = 0; layer < n / 2; layer++) {
-        int first = layer;
-        int last = n - 1 - layer;
+void rotateIPiece(int matrix[4][4]) {
+    for (int i = 0; i < 4 / 2; i++) {
+        for (int j = i; j < 4 - i - 1; j++) {
+            int temp = matrix[i][j];
+            matrix[i][j] = matrix[4 - 1 - j][i];
+            matrix[4 - 1 - j][i] = matrix[4 - 1 - i][4 - 1 - j];
+            matrix[4 - 1 - i][4 - 1 - j] = matrix[j][4 - 1 - i];
+            matrix[j][4 - 1 - i] = temp;
+        }
+    }
+}
 
-        // Perform circular rotation for each layer
-        for (int i = first; i < last; i++) {
-            int offset = i - first;
+void rotateMatrix(int matrix[4][4]) {
+    int temp[4][4];
 
-            // Save the top element
-            int top = matrix[first][i];
+    // Copy the original matrix to the temporary matrix
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            temp[i][j] = matrix[i][j];
+        }
+    }
 
-            // Move left element to top
-            matrix[first][i] = matrix[last - offset][first];
+    // Rotate the elements around the pivot in the temporary matrix
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            int x = i - 1;
+            int y = j - 1;
+            int new_x = -y;
+            int new_y = x;
+            int rotated_row = new_x + 1;
+            int rotated_col = new_y + 1;
 
-            // Move bottom element to left
-            matrix[last - offset][first] = matrix[last][last - offset];
-
-            // Move right element to bottom
-            matrix[last][last - offset] = matrix[i][last];
-
-            // Move top element to right
-            matrix[i][last] = top;
+            // Check if the rotated position is within the matrix boundaries
+            if (rotated_row >= 0 && rotated_row < 4 && rotated_col >= 0 && rotated_col < 4) {
+                matrix[i][j] = temp[rotated_row][rotated_col];
+            }
         }
     }
 }
@@ -201,7 +213,7 @@ Point2D getInputs() {
     if (input == 's') dir = newPoint2D(1, 0);
     if (input == 'd') dir = newPoint2D(0, 1);
     if (input == 'z')
-        rotateMatrix(4, currentPiece);
+        //rotateMatrix(4, currentPiece);
     return dir;
 }
 
@@ -214,14 +226,45 @@ void placeTetromino(Game *game, int type) {
     }
 }
 
+void debugPrintTetromino(){
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            printf("%c",(currentPiece[i][j] == ' ' ? '-' : currentPiece[i][j]));
+        }
+        printf("\n");
+    }
+}
 
 int main() {
     Game game;
     initGrid(&game);
+    while (currentPieceType != 4)
+        generateNewTetromino();
     refresh(&game);
 
+    printf("current tetromino\n");
+    debugPrintTetromino();
+    //rotateIPiece(currentPiece);
+    rotateMatrix(currentPiece);
+    printf("current tetromino\n");
+    debugPrintTetromino();
+    //rotateIPiece(currentPiece);
+    rotateMatrix(currentPiece);
+    printf("current tetromino\n");
+    debugPrintTetromino();
+    //rotateIPiece(currentPiece);
+    rotateMatrix(currentPiece);
+    printf("current tetromino\n");
+    debugPrintTetromino();
+    //rotateIPiece(currentPiece);
+    rotateMatrix(currentPiece);
+
+    exit(1);
+
+
+
     clock_t t;
-    while (1/*currentPieceRow != HEIGHT - 3 */) {
+    while (1) {
         t = clock();
         fflush(stdin); //?
         Point2D input = getInputs();
