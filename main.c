@@ -24,6 +24,10 @@ enum colors {
     AIR, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE
 };
 
+enum tetrominoes {
+    PIECE_Z, PIECE_S, PIECE_O, PIECE_J, PIECE_T, PIECE_I, PIECE_L
+};
+
 int currentPieceRow, currentPieceCol;
 int currentPieceType;
 int currentPiece[4][4];
@@ -75,50 +79,50 @@ char pieces[7][4][4] = {
 
 /* --------------------------------------------------------------------------------- */
 
-/// rotates the I piece
-void rotateIPiece(int matrix[4][4], bool clockwise) {
-
-    // to rotate a piece counterclockwise just rotate it 3 times
-    for (int rotations = 0; rotations < (!clockwise ? 1 : 3); ++rotations) {
-        for (int i = 0; i < 4 / 2; i++) {
-            for (int j = i; j < 4 - i - 1; j++) {
-                int temp = matrix[i][j];
-                matrix[i][j] = matrix[4 - 1 - j][i];
-                matrix[4 - 1 - j][i] = matrix[4 - 1 - i][4 - 1 - j];
-                matrix[4 - 1 - i][4 - 1 - j] = matrix[j][4 - 1 - i];
-                matrix[j][4 - 1 - i] = temp;
-            }
-        }
-    }
-}
-
 /// rotates all tetrominoes except the I piece
-void rotateTetromino(int matrix[4][4], bool clockwise) {
+void rotateTetromino(int matrix[4][4], int pieceType, bool clockwise) {
 
-    // to rotate a piece counterclockwise just rotate it 3 times
+    // to rotate a piece counterclockwise just rotate it clockwise 3 times
     for (int rotations = 0; rotations < (!clockwise ? 1 : 3); ++rotations) {
-        int temp[4][4];
 
-        // Copy the original matrix to the temporary matrix
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                temp[i][j] = matrix[i][j];
+        // I piece rotation behaves differently from others
+        if (pieceType == PIECE_I) {
+
+            for (int i = 0; i < 4 / 2; i++) {
+                for (int j = i; j < 4 - i - 1; j++) {
+                    int temp = matrix[i][j];
+                    matrix[i][j] = matrix[4 - 1 - j][i];
+                    matrix[4 - 1 - j][i] = matrix[4 - 1 - i][4 - 1 - j];
+                    matrix[4 - 1 - i][4 - 1 - j] = matrix[j][4 - 1 - i];
+                    matrix[j][4 - 1 - i] = temp;
+                }
             }
-        }
 
-        // Rotate the elements around the pivot in the temporary matrix
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                int x = i - 1;
-                int y = j - 1;
-                int new_x = -y;
-                int new_y = x;
-                int rotated_row = new_x + 1;
-                int rotated_col = new_y + 1;
+        } else {
 
-                // Check if the rotated position is within the matrix boundaries
-                if (rotated_row >= 0 && rotated_row < 4 && rotated_col >= 0 && rotated_col < 4) {
-                    matrix[i][j] = temp[rotated_row][rotated_col];
+            int temp[4][4];
+
+            // Copy the original matrix to the temporary matrix
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    temp[i][j] = matrix[i][j];
+                }
+            }
+
+            // Rotate the elements around the pivot in the temporary matrix
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    int x = i - 1;
+                    int y = j - 1;
+                    int new_x = -y;
+                    int new_y = x;
+                    int rotated_row = new_x + 1;
+                    int rotated_col = new_y + 1;
+
+                    // Check if the rotated position is within the matrix boundaries
+                    if (rotated_row >= 0 && rotated_row < 4 && rotated_col >= 0 && rotated_col < 4) {
+                        matrix[i][j] = temp[rotated_row][rotated_col];
+                    }
                 }
             }
         }
@@ -248,25 +252,19 @@ void debugPrintTetromino() {
 int main() {
     Game game;
     initGrid(&game);
-    while (currentPieceType != 5)
-        generateNewTetromino();
     refresh(&game);
 
     printf("current tetromino\n");
     debugPrintTetromino();
-    rotateIPiece(currentPiece, -1);
-    //rotateTetromino(currentPiece);
+    rotateTetromino(currentPiece,currentPieceType,true);
     printf("current tetromino\n");
     debugPrintTetromino();
-    rotateIPiece(currentPiece, -1);
-    //rotateTetromino(currentPiece);
+    rotateTetromino(currentPiece,currentPieceType,true);
     printf("current tetromino\n");
     debugPrintTetromino();
-    rotateIPiece(currentPiece, -1);
-    //rotateTetromino(currentPiece);
+    rotateTetromino(currentPiece,currentPieceType,true);
     printf("current tetromino\n");
     debugPrintTetromino();
-    rotateIPiece(currentPiece, -1);
     //rotateTetromino(currentPiece);
 
     exit(1);
