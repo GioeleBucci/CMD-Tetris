@@ -26,7 +26,7 @@ enum colors {
 
 int currentPieceRow, currentPieceCol;
 int currentPieceType;
-
+int currentPiece[4][4];
 
 char pieces[7][4][4] = {
         { // Z
@@ -108,10 +108,13 @@ void printColoredChar(unsigned char ch, int pieceType) {
     printf("\x1b[3%dm%c\x1b[0m", (pieceType == 6 ? YELLOW : pieceType + 1), ch);
 }
 
-void generateNewTetromino(){
-    currentPieceType = rand()%7;
+void generateNewTetromino() {
+    currentPieceType = rand() % 7;
     currentPieceRow = 1;
     currentPieceCol = WIDTH / 2 - 2;
+    for (int i = 0; i < 4; ++i)
+        for (int j = 0; j < 4; ++j)
+            currentPiece[i][j] = pieces[currentPieceType][i][j];
 }
 
 void initGrid(Game *game) {
@@ -126,7 +129,7 @@ void initGrid(Game *game) {
     //start random number generator
     time_t t;
     time(&t);
-    srand((unsigned int)t);
+    srand((unsigned int) t);
 
     //generate first piece
     generateNewTetromino();
@@ -136,7 +139,7 @@ void initGrid(Game *game) {
 int printTetromino(int i, int j, int type) {
     int row = i - currentPieceRow;
     int col = j - currentPieceCol;
-    if (row < 4 && row >= 0 && col < 4 && col >= 0 && pieces[type][row][col] != ' ') {
+    if (row < 4 && row >= 0 && col < 4 && col >= 0 && currentPiece[row][col] != ' ') {
         // since the terminal has no orange both O and L pieces use yellow
         printColoredChar(219, type);
         return 1;
@@ -177,7 +180,7 @@ bool isCollision(const Game *game, int rowOffset, int colOffset, int pieceType) 
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
             // found block
-            if (pieces[pieceType][i][j] != ' ') {
+            if (currentPiece[i][j] != ' ') {
                 int row = currentPieceRow + i + rowOffset;
                 int col = currentPieceCol + j + colOffset;
                 if (game->grid[row][col] != AIR)
@@ -197,21 +200,19 @@ Point2D getInputs() {
     if (input == 'a') dir = newPoint2D(0, -1);
     if (input == 's') dir = newPoint2D(1, 0);
     if (input == 'd') dir = newPoint2D(0, 1);
-    if(input == 'z')
-        rotateMatrix(4,pieces[currentPieceType]);
+    if (input == 'z')
+        rotateMatrix(4, currentPiece);
     return dir;
 }
 
-void placeTetromino(Game *game, int type){
+void placeTetromino(Game *game, int type) {
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
-            if(pieces[type][i][j] != ' ')
-                game->grid[currentPieceRow+i][currentPieceCol+j] = type;
+            if (currentPiece[i][j] != ' ')
+                game->grid[currentPieceRow + i][currentPieceCol + j] = type;
         }
     }
 }
-
-
 
 
 int main() {
@@ -225,14 +226,14 @@ int main() {
         fflush(stdin); //?
         Point2D input = getInputs();
         //check left or right movement
-        if(isSamePoint2D(input,POINT2D_LEFT) && !isCollision(&game,0,-1,currentPieceType))
+        if (isSamePoint2D(input, POINT2D_LEFT) && !isCollision(&game, 0, -1, currentPieceType))
             currentPieceCol--;
-        else if(isSamePoint2D(input,POINT2D_RIGHT) && !isCollision(&game,0,1,currentPieceType))
+        else if (isSamePoint2D(input, POINT2D_RIGHT) && !isCollision(&game, 0, 1, currentPieceType))
             currentPieceCol++;
         if (!isCollision(&game, 1, 0, currentPieceType)) {
             currentPieceRow++;
-        }else{
-            placeTetromino(&game,currentPieceType);
+        } else {
+            placeTetromino(&game, currentPieceType);
             generateNewTetromino();
         }
         t = clock() - t;
