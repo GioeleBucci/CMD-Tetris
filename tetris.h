@@ -32,7 +32,6 @@ extern int bagIndexNext; // 0 - 6, current element of the bag dropping
 
 extern char pieces[7][4][4];
 
-
 /* --------------------------------------------------------------------------------- */
 
 /// Perform Fisher-Yates shuffle on pieces bag

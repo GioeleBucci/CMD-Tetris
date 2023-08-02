@@ -15,7 +15,10 @@ int currentPiece[4][4];
 int bag[7]; // contains a permutation of the 7 pieces
 int bagIndexNext; // 0 - 6, current element of the bag dropping
 
-extern char pieces[7][4][4] = {
+// distance of score and next piece box from the game box
+static int leftMargin = 4;
+
+char pieces[7][4][4] = {
         { // Z
                 "##  ",
                 " ## ",
@@ -186,8 +189,6 @@ int printTetromino(int i, int j, int type) {
 
 
 void printScore(int score) {
-    // leftMargin TODO
-    int leftMargin = 4;
     printf("\033[1;%dH", WIDTH + leftMargin);
     printf("SCORE:%03d", score);
 }
@@ -195,7 +196,6 @@ void printScore(int score) {
 
 void printNext() {
     int next = bag[bagIndexNext];
-    int leftMargin = 4;
     /* \033[x;yH
      * is an ANSI escape code that moves the cursor at the x-th line and y-th row of the terminal
      * for eg printf("\033[%d;%dH", 4, 7) moves the cursor at the 7th character of the 4th line */

@@ -10,12 +10,21 @@
 
 /* --------------------------------------------------------------------------------- */
 
+bool gameOver(Game *game){
+    //check top row and see if there are pieces on it
+    for (int i = 1; i < WIDTH - 1; ++i) {
+        if(game->grid[1][i] != AIR)
+            return true;
+    }
+    return false;
+}
+
 int main() {
     Game game;
     initGame(&game);
 
     clock_t t;
-    while (1) {
+    while (!gameOver(&game)) {
         t = clock();
         fflush(stdin); //?
         Point2D input = getInputs(&game);
@@ -36,4 +45,5 @@ int main() {
         refresh(&game);
         printNext();
     }
+    return 0;
 }
