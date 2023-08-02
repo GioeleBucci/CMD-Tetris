@@ -8,7 +8,6 @@
 #include <ctype.h>
 #include <windows.h>
 
-
 int currentPieceRow, currentPieceCol;
 int currentPieceType;
 int currentPiece[4][4];
@@ -221,10 +220,20 @@ void printNext() {
         printf("%c", 223);
 }
 
+void clearScreen() {
+    /* \033[x;yH
+    * is an ANSI escape code that moves the cursor at the x-th line and y-th row of the terminal
+    * for eg printf("\033[%d;%dH", 4, 7) moves the cursor at the 7th character of the 4th line */
+    for (int i = 0; i < HEIGHT; ++i) {
+        printf("\033[%d;1H", i + 1);
+        printf("\t\t\t\t\t");
+    }
+    printf("\033[1;1H");
+}
 
 void refresh(Game *game) {
 
-    system("cls");
+    clearScreen();
 
     // clears eventual lines and increases the score
     game->score += score((clearLines(game)));
@@ -336,10 +345,10 @@ int score(int linesCleared) {
         return 1200;
 }
 
-bool gameOver(Game *game){
+bool gameOver(Game *game) {
     //check top row and see if there are pieces on it
     for (int i = 1; i < WIDTH - 1; ++i) {
-        if(game->grid[1][i] != ' ')
+        if (game->grid[1][i] != ' ')
             return true;
     }
     return false;

@@ -17,7 +17,7 @@ typedef struct Game {
 } Game;
 
 enum colors {
-    TRANSPARENT, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE
+    NOCOLOR, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE
 };
 
 enum tetrominoes {
