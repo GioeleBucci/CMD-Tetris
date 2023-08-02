@@ -189,7 +189,7 @@ int printTetromino(int i, int j, int type) {
 
 void printScore(int score) {
     printf("\033[1;%dH", WIDTH + leftMargin);
-    printf("SCORE:%03d", score);
+    printf("SCORE:%04d", score);
 }
 
 
@@ -299,6 +299,17 @@ Point2D getInputs(Game *game) {
         rotateTetromino(newPiece, currentPieceType, isClockwise);
         if (!isCollision(game, newPiece, 0, 0))
             rotateTetromino(currentPiece, currentPieceType, isClockwise);
+    }
+
+    // hard drop
+    /* In the original game if the piece was hard dropped, an amount equal
+     * to the number of rows covered by the hard drop plus 1 is added to the score */
+    if(input == ' '){
+        game->score++;
+        while(!isCollision(game, currentPiece, 1, 0)){
+            currentPieceRow++;
+            game->score++;
+        }
     }
     return dir;
 }

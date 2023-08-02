@@ -8,6 +8,8 @@
 #include "points2D.h"
 #include "tetris.h"
 
+int FPS = 6;
+
 /* --------------------------------------------------------------------------------- */
 
 int main() {
@@ -26,6 +28,7 @@ int main() {
             currentPieceCol--;
         else if (isSamePoint2D(input, POINT2D_RIGHT) && !isCollision(&game, currentPiece, 0, 1))
             currentPieceCol++;
+
         if (!isCollision(&game, currentPiece, 1, 0)) {
             currentPieceRow++;
         } else {

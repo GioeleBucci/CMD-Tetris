@@ -6,8 +6,6 @@
 #define WIDTH 12
 #define HEIGHT 22
 
-#define FPS 2
-
 typedef struct Game {
     /* The grid contains only the already placed tetrominos
      * not the falling one. The value contained in the 2d array
