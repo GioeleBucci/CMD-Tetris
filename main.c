@@ -278,17 +278,14 @@ void debugPrintTetromino() {
 
 void printNext() {
     int next = bag[bagIndexNext];
-    int boxLenght = 7, boxHeight = 6;
     int leftMargin = 4;
-
     /* \033[x;yH
      * is an ANSI escape code that moves the cursor at the x-th line and y-th row of the terminal
-     * for eg printf("\033[%d;%dH", 4, 7) moves the cursor at the 7th character of the 4th line
-     */
+     * for eg printf("\033[%d;%dH", 4, 7) moves the cursor at the 7th character of the 4th line */
 
     // box top
     printf("\033[1;%dH", WIDTH + leftMargin);
-    for (int i = 0; i < boxLenght; ++i)
+    for (int i = 0; i < 7; ++i)
         printf("%c", 220);
 
     for (int i = 0; i < 4; ++i) {
@@ -302,9 +299,57 @@ void printNext() {
     }
 
     // box bottom
-    printf("\033[%d;%dH", boxHeight, WIDTH + leftMargin);
-    for (int i = 0; i < boxLenght; ++i)
+    printf("\033[%d;%dH", 6, WIDTH + leftMargin);
+    for (int i = 0; i < 7; ++i)
         printf("%c", 223);
+}
+
+
+void addLineOn(Game *game, int row){
+    for (int i = 1; i < WIDTH - 1; ++i) {
+        game->grid[row][i] = BLUE;
+    }
+}
+
+/// returns the number of lines cleared
+int clearLines(Game *game){
+
+    int linesCleared = 0;
+
+    //start from bottom
+    for (int i = HEIGHT - 2; i >= 1 ; --i) {
+        bool isLineFull = true;
+        for (int j = 1; j < WIDTH - 1; ++j) {
+            if(game->grid[i][j] == AIR){
+                isLineFull = false;
+                break;
+            }
+        }
+        if(isLineFull){
+            linesCleared++;
+            for (int j = i; j >= 2; --j) {
+                for (int k = 1; k < WIDTH - 1; ++k) {
+                    game->grid[j][k] = game->grid[j - 1][k];
+                }
+            }
+            i++; // since everything shifted down check same line again
+        }
+    }
+    return linesCleared;
+}
+
+int score(int linesCleared){
+    // 40 100 300 1200
+    if(linesCleared == 0)
+        return 0;
+    if(linesCleared == 1)
+        return 40;
+    if(linesCleared == 2)
+        return 100;
+    if(linesCleared == 3)
+        return 300;
+    if(linesCleared == 4) //tetris
+        return 1200;
 }
 
 
@@ -312,7 +357,15 @@ int main() {
     Game game;
     initGame(&game);
     refresh(&game);
-
+    addLineOn(&game,HEIGHT - 2);
+    addLineOn(&game,HEIGHT - 3);
+    game.grid[HEIGHT - 3][4] = BLUE;
+    refresh(&game);
+    getch();
+    int x = clearLines(&game);
+    refresh(&game);
+    printf("\ncleared %d lines",x);
+    exit(1);
     clock_t t;
     while (1) {
         t = clock();
