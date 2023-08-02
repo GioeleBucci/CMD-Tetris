@@ -150,6 +150,8 @@ void generateNewTetromino() {
 
 void initGame(Game *game) {
 
+    system("cls");
+
     game->score = 0;
 
     for (int i = 0; i < HEIGHT; ++i)
