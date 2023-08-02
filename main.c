@@ -10,7 +10,7 @@
 #define WIDTH 12
 #define HEIGHT 22
 
-#define FPS 30
+#define FPS 2
 
 typedef struct Game {
     /* The grid contains only the already placed tetrominos
@@ -31,7 +31,7 @@ int currentPieceRow, currentPieceCol;
 int currentPieceType;
 int currentPiece[4][4];
 int bag[7]; // contains a permutation of the 7 pieces
-int bagIndex = 0; // 0 - 6, current element of the bag dropping
+int bagIndexNext = 0; // 0 - 6, current element of the bag dropping
 
 char pieces[7][4][4] = {
         { // Z
@@ -47,8 +47,8 @@ char pieces[7][4][4] = {
                 "    "
         },
         { // O
-                "##  ",
-                "##  ",
+                " ## ",
+                " ## ",
                 "    ",
                 "    "
         },
@@ -94,7 +94,7 @@ void shuffleBag() {
 void rotateTetromino(int piece[4][4], int pieceType, bool clockwise) {
 
     // O piece doesn't rotate
-    if(pieceType == PIECE_O)
+    if (pieceType == PIECE_O)
         return;
 
     // to rotate a piece counterclockwise just rotate it clockwise 3 times
@@ -151,7 +151,7 @@ void printColoredChar(unsigned char ch, int pieceType) {
 
 /// generates a tetromino according to the current bagIndex
 void generateNewTetromino() {
-    currentPieceType = bag[bagIndex];
+    currentPieceType = bag[bagIndexNext];
     currentPieceRow = 1;
     currentPieceCol = WIDTH / 2 - 2;
     for (int i = 0; i < 4; ++i)
@@ -159,10 +159,10 @@ void generateNewTetromino() {
             currentPiece[i][j] = pieces[currentPieceType][i][j];
 
     // if all the pieces of the bag are placed reshuffle the bag and restart the cycle
-    if (bagIndex == 6) {
-        bagIndex = 0;
+    if (bagIndexNext == 6) {
+        bagIndexNext = 0;
         shuffleBag();
-    } else bagIndex++;
+    } else bagIndexNext++;
 }
 
 void initGame(Game *game) {
@@ -183,7 +183,7 @@ void initGame(Game *game) {
     for (int i = 0; i < 7; ++i)
         bag[i] = i;
     shuffleBag();
-    bagIndex = 0;
+    bagIndexNext = 0;
 
     //generate first piece
     generateNewTetromino();
@@ -253,7 +253,7 @@ Point2D getInputs(Game *game) {
     if (input == 's') dir = newPoint2D(1, 0);
 
     //handle rotations
-    if (input == 'z' || input == 'x'){
+    if (input == 'z' || input == 'x') {
         bool isClockwise = input == 'z' ? true : false;
         // clone piece, rotate it and check for collisions
         int newPiece[4][4];
@@ -261,11 +261,9 @@ Point2D getInputs(Game *game) {
             for (int j = 0; j < 4; ++j)
                 newPiece[i][j] = currentPiece[i][j];
         rotateTetromino(newPiece, currentPieceType, isClockwise);
-        if(!isCollision(game,newPiece,0,0))
+        if (!isCollision(game, newPiece, 0, 0))
             rotateTetromino(currentPiece, currentPieceType, isClockwise);
     }
-    //if (input == 'x') //counterclockwise rotation
-    //    rotateTetromino(currentPiece, currentPieceType, false);
     return dir;
 }
 
@@ -278,6 +276,38 @@ void debugPrintTetromino() {
     }
 }
 
+void printNext() {
+    int next = bag[bagIndexNext];
+    int boxLenght = 7, boxHeight = 6;
+    int leftMargin = 4;
+
+    /* \033[x;yH
+     * is an ANSI escape code that moves the cursor at the x-th line and y-th row of the terminal
+     * for eg printf("\033[%d;%dH", 4, 7) moves the cursor at the 7th character of the 4th line
+     */
+
+    // box top
+    printf("\033[1;%dH", WIDTH + leftMargin);
+    for (int i = 0; i < boxLenght; ++i)
+        printf("%c", 220);
+
+    for (int i = 0; i < 4; ++i) {
+        printf("\033[%d;%dH", i + 2, WIDTH + leftMargin);
+        printf("%c ", 221); //left margin
+        for (int j = 0; j < 4; ++j) {
+            if (i == 0) printf(" ");
+            else printColoredChar(pieces[next][i - 1][j] == ' ' ? ' ' : 219, next);
+        }
+        printf("%c", 222); //right margin
+    }
+
+    // box bottom
+    printf("\033[%d;%dH", boxHeight, WIDTH + leftMargin);
+    for (int i = 0; i < boxLenght; ++i)
+        printf("%c", 223);
+}
+
+
 int main() {
     Game game;
     initGame(&game);
@@ -289,11 +319,11 @@ int main() {
         fflush(stdin); //?
         Point2D input = getInputs(&game);
         //check left or right movement
-        if (isSamePoint2D(input, POINT2D_LEFT) && !isCollision(&game,currentPiece, 0, -1))
+        if (isSamePoint2D(input, POINT2D_LEFT) && !isCollision(&game, currentPiece, 0, -1))
             currentPieceCol--;
-        else if (isSamePoint2D(input, POINT2D_RIGHT) && !isCollision(&game,currentPiece, 0, 1))
+        else if (isSamePoint2D(input, POINT2D_RIGHT) && !isCollision(&game, currentPiece, 0, 1))
             currentPieceCol++;
-        if (!isCollision(&game,currentPiece, 1, 0)) {
+        if (!isCollision(&game, currentPiece, 1, 0)) {
             currentPieceRow++;
         } else {
             placeTetromino(&game, currentPieceType);
@@ -303,5 +333,6 @@ int main() {
         double elapsedTime = ((double) t) / CLOCKS_PER_SEC * 1000;
         Sleep((1000 - (int) elapsedTime) / FPS);
         refresh(&game);
+        printNext();
     }
 }
