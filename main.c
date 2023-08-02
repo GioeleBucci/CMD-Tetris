@@ -10,15 +10,6 @@
 
 /* --------------------------------------------------------------------------------- */
 
-bool gameOver(Game *game){
-    //check top row and see if there are pieces on it
-    for (int i = 1; i < WIDTH - 1; ++i) {
-        if(game->grid[1][i] != ' ')
-            return true;
-    }
-    return false;
-}
-
 int main() {
     Game game;
     initGame(&game);

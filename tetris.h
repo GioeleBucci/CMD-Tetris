@@ -59,11 +59,8 @@ void placeTetromino(Game *game, int type);
 
 Point2D getInputs(Game *game);
 
-void debugPrintTetromino();
-
+/// print next piece box in the top right corner
 void printNext();
-
-void addLineOn(Game *game, int row);
 
 /// returns the number of lines cleared
 int clearLines(Game *game);
@@ -71,5 +68,7 @@ int clearLines(Game *game);
 int score(int linesCleared);
 
 void printScore(int score);
+
+bool gameOver(Game *game);
 
 #endif //TETRIS_TETRIS_H

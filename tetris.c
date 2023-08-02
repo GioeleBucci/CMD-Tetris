@@ -294,21 +294,6 @@ Point2D getInputs(Game *game) {
     return dir;
 }
 
-void debugPrintTetromino() {
-    for (int i = 0; i < 4; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            printf("%c", (currentPiece[i][j] == ' ' ? '-' : currentPiece[i][j]));
-        }
-        printf("\n");
-    }
-}
-
-void addLineOn(Game *game, int row) {
-    for (int i = 1; i < WIDTH - 1; ++i) {
-        game->grid[row][i] = BLUE;
-    }
-}
-
 /// returns the number of lines cleared
 int clearLines(Game *game) {
 
@@ -349,4 +334,13 @@ int score(int linesCleared) {
         return 300;
     if (linesCleared == 4) //tetris
         return 1200;
+}
+
+bool gameOver(Game *game){
+    //check top row and see if there are pieces on it
+    for (int i = 1; i < WIDTH - 1; ++i) {
+        if(game->grid[1][i] != ' ')
+            return true;
+    }
+    return false;
 }
