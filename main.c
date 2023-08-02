@@ -41,5 +41,7 @@ int main() {
         refresh(&game);
         printNext();
     }
+    printf("\033[%d;1H\n", HEIGHT + 1);
+    puts("Game Over");
     return 0;
 }
