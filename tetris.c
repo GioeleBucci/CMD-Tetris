@@ -9,11 +9,11 @@
 #include <windows.h>
 
 
- int currentPieceRow, currentPieceCol;
- int currentPieceType;
- int currentPiece[4][4];
- int bag[7]; // contains a permutation of the 7 pieces
- int bagIndexNext; // 0 - 6, current element of the bag dropping
+int currentPieceRow, currentPieceCol;
+int currentPieceType;
+int currentPiece[4][4];
+int bag[7]; // contains a permutation of the 7 pieces
+int bagIndexNext; // 0 - 6, current element of the bag dropping
 
 extern char pieces[7][4][4] = {
         { // Z
@@ -59,7 +59,6 @@ extern char pieces[7][4][4] = {
                 "    "
         }
 };
-
 
 
 /// Perform Fisher-Yates shuffle on pieces bag
@@ -185,12 +184,51 @@ int printTetromino(int i, int j, int type) {
     return 0;
 }
 
+
+void printScore(int score) {
+    // leftMargin TODO
+    int leftMargin = 4;
+    printf("\033[1;%dH", WIDTH + leftMargin);
+    printf("SCORE:%03d", score);
+}
+
+
+void printNext() {
+    int next = bag[bagIndexNext];
+    int leftMargin = 4;
+    /* \033[x;yH
+     * is an ANSI escape code that moves the cursor at the x-th line and y-th row of the terminal
+     * for eg printf("\033[%d;%dH", 4, 7) moves the cursor at the 7th character of the 4th line */
+
+    // box top
+    printf("\033[2;%dH", WIDTH + leftMargin);
+    for (int i = 0; i < 7; ++i)
+        printf("%c", 220);
+
+    for (int i = 0; i < 4; ++i) {
+        printf("\033[%d;%dH", i + 3, WIDTH + leftMargin);
+        printf("%c ", 221); //left margin
+        for (int j = 0; j < 4; ++j) {
+            if (i == 0) printf(" ");
+            else printColoredChar(pieces[next][i - 1][j] == ' ' ? ' ' : 219, next);
+        }
+        printf("%c", 222); //right margin
+    }
+
+    // box bottom
+    printf("\033[%d;%dH", 7, WIDTH + leftMargin);
+    for (int i = 0; i < 7; ++i)
+        printf("%c", 223);
+}
+
+
 void refresh(Game *game) {
 
-    // clears eventual lines and increases the score
-    game->score+= score((clearLines(game)));
-
     system("cls");
+
+    // clears eventual lines and increases the score
+    game->score += score((clearLines(game)));
+
     // PRINT GRID
     for (int i = 0; i < HEIGHT; ++i) {
         for (int j = 0; j < WIDTH; ++j) {
@@ -204,6 +242,8 @@ void refresh(Game *game) {
         printf("\n");
     }
 
+    // print the new score
+    printScore(game->score);
 }
 
 bool isCollision(const Game *game, int piece[4][4], int rowOffset, int colOffset) {
@@ -263,56 +303,27 @@ void debugPrintTetromino() {
     }
 }
 
-void printNext() {
-    int next = bag[bagIndexNext];
-    int leftMargin = 4;
-    /* \033[x;yH
-     * is an ANSI escape code that moves the cursor at the x-th line and y-th row of the terminal
-     * for eg printf("\033[%d;%dH", 4, 7) moves the cursor at the 7th character of the 4th line */
-
-    // box top
-    printf("\033[1;%dH", WIDTH + leftMargin);
-    for (int i = 0; i < 7; ++i)
-        printf("%c", 220);
-
-    for (int i = 0; i < 4; ++i) {
-        printf("\033[%d;%dH", i + 2, WIDTH + leftMargin);
-        printf("%c ", 221); //left margin
-        for (int j = 0; j < 4; ++j) {
-            if (i == 0) printf(" ");
-            else printColoredChar(pieces[next][i - 1][j] == ' ' ? ' ' : 219, next);
-        }
-        printf("%c", 222); //right margin
-    }
-
-    // box bottom
-    printf("\033[%d;%dH", 6, WIDTH + leftMargin);
-    for (int i = 0; i < 7; ++i)
-        printf("%c", 223);
-}
-
-
-void addLineOn(Game *game, int row){
+void addLineOn(Game *game, int row) {
     for (int i = 1; i < WIDTH - 1; ++i) {
         game->grid[row][i] = BLUE;
     }
 }
 
 /// returns the number of lines cleared
-int clearLines(Game *game){
+int clearLines(Game *game) {
 
     int linesCleared = 0;
 
     //start from bottom
-    for (int i = HEIGHT - 2; i >= 1 ; --i) {
+    for (int i = HEIGHT - 2; i >= 1; --i) {
         bool isLineFull = true;
         for (int j = 1; j < WIDTH - 1; ++j) {
-            if(game->grid[i][j] == AIR){
+            if (game->grid[i][j] == AIR) {
                 isLineFull = false;
                 break;
             }
         }
-        if(isLineFull){
+        if (isLineFull) {
             linesCleared++;
             for (int j = i; j >= 2; --j) {
                 for (int k = 1; k < WIDTH - 1; ++k) {
@@ -326,16 +337,16 @@ int clearLines(Game *game){
 }
 
 /// returns score for lines cleared (40,100,300 or 1200)
-int score(int linesCleared){
+int score(int linesCleared) {
     // 40 100 300 1200
-    if(linesCleared == 0)
+    if (linesCleared == 0)
         return 0;
-    if(linesCleared == 1)
+    if (linesCleared == 1)
         return 40;
-    if(linesCleared == 2)
+    if (linesCleared == 2)
         return 100;
-    if(linesCleared == 3)
+    if (linesCleared == 3)
         return 300;
-    if(linesCleared == 4) //tetris
+    if (linesCleared == 4) //tetris
         return 1200;
 }

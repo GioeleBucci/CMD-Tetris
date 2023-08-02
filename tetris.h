@@ -71,4 +71,6 @@ int clearLines(Game *game);
 
 int score(int linesCleared);
 
+void printScore(int score);
+
 #endif //TETRIS_TETRIS_H
