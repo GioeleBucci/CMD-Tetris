@@ -13,16 +13,7 @@
 int main() {
     Game game;
     initGame(&game);
-    refresh(&game);
-    addLineOn(&game,HEIGHT - 2);
-    addLineOn(&game,HEIGHT - 3);
-    game.grid[HEIGHT - 3][4] = BLUE;
-    refresh(&game);
-    getch();
-    int x = clearLines(&game);
-    refresh(&game);
-    printf("\ncleared %d lines",x);
-    //exit(1);
+
     clock_t t;
     while (1) {
         t = clock();

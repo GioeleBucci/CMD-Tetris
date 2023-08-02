@@ -149,6 +149,8 @@ void generateNewTetromino() {
 
 void initGame(Game *game) {
 
+    game->score = 0;
+
     for (int i = 0; i < HEIGHT; ++i)
         for (int j = 0; j < WIDTH; ++j)
             game->grid[i][j] = WHITE; // walls
@@ -184,6 +186,9 @@ int printTetromino(int i, int j, int type) {
 }
 
 void refresh(Game *game) {
+
+    // clears eventual lines and increases the score
+    game->score+= score((clearLines(game)));
 
     system("cls");
     // PRINT GRID
@@ -320,6 +325,7 @@ int clearLines(Game *game){
     return linesCleared;
 }
 
+/// returns score for lines cleared (40,100,300 or 1200)
 int score(int linesCleared){
     // 40 100 300 1200
     if(linesCleared == 0)

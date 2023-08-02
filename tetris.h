@@ -13,6 +13,7 @@ typedef struct Game {
      * not the falling one. The value contained in the 2d array
      * is the color of the single block (or AIR if empty) */
     int grid[HEIGHT][WIDTH];
+    int score;
 } Game;
 
 enum colors {
