@@ -158,7 +158,7 @@ void initGame(Game *game) {
             game->grid[i][j] = WHITE; // walls
     for (int i = 1; i < HEIGHT - 1; ++i)
         for (int j = 1; j < WIDTH - 1; ++j)
-            game->grid[i][j] = AIR;
+            game->grid[i][j] = ' ';
 
     //start random number generator
     time_t t;
@@ -233,7 +233,7 @@ void refresh(Game *game) {
     for (int i = 0; i < HEIGHT; ++i) {
         for (int j = 0; j < WIDTH; ++j) {
             if (!printTetromino(i, j, currentPieceType)) {
-                if (game->grid[i][j] == AIR)
+                if (game->grid[i][j] == ' ')
                     printf(" ");
                 else // in game->grid[i][j] is stored the color of the single block
                     printColoredChar(219, game->grid[i][j]);
@@ -253,7 +253,7 @@ bool isCollision(const Game *game, int piece[4][4], int rowOffset, int colOffset
             if (piece[i][j] != ' ') {
                 int row = currentPieceRow + i + rowOffset;
                 int col = currentPieceCol + j + colOffset;
-                if (game->grid[row][col] != AIR)
+                if (game->grid[row][col] != ' ')
                     return true;
             }
         }
@@ -318,7 +318,7 @@ int clearLines(Game *game) {
     for (int i = HEIGHT - 2; i >= 1; --i) {
         bool isLineFull = true;
         for (int j = 1; j < WIDTH - 1; ++j) {
-            if (game->grid[i][j] == AIR) {
+            if (game->grid[i][j] == ' ') {
                 isLineFull = false;
                 break;
             }

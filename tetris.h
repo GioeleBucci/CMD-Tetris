@@ -11,13 +11,13 @@
 typedef struct Game {
     /* The grid contains only the already placed tetrominos
      * not the falling one. The value contained in the 2d array
-     * is the color of the single block (or AIR if empty) */
+     * is the color of the single block (or ' ' if empty) */
     int grid[HEIGHT][WIDTH];
     int score;
 } Game;
 
 enum colors {
-    AIR, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE
+    TRANSPARENT, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE
 };
 
 enum tetrominoes {
