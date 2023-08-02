@@ -49,7 +49,7 @@ void initGame(Game *game);
 /// returns non-zero if a tetromino piece is rendered
 int printTetromino(int i, int j, int type);
 
-void refresh(Game *game);
+void update(Game *game);
 
 bool isCollision(const Game *game, int piece[4][4], int rowOffset, int colOffset);
 

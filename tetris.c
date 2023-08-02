@@ -233,9 +233,17 @@ void clearScreen() {
     printf("\033[1;1H");
 }
 
-void refresh(Game *game) {
+void update(Game *game) {
 
     clearScreen();
+
+    //drop piece or place if it collided with something
+    if (!isCollision(game, currentPiece, 1, 0)) {
+        currentPieceRow++;
+    } else {
+        placeTetromino(game, currentPieceType);
+        generateNewTetromino();
+    }
 
     // clears eventual lines and increases the score
     game->score += score((clearLines(game)));
@@ -252,6 +260,9 @@ void refresh(Game *game) {
         }
         printf("\n");
     }
+
+    //print next piece
+    printNext();
 
     // print the new score
     printScore(game->score);
