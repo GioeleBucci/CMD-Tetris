@@ -11,7 +11,7 @@
 
 A Tetris clone for Windows terminals entirely written in C.
 The controls are:
-* `a` and `s` for moving left and right
+* `a` and `d` for moving left and right
 * `s` for soft-dropping
 * `SPACE` for hard-dropping
 * `z` and `x` for rotating
