@@ -8,6 +8,7 @@
 
 #include "points2D.h"
 #include "tetris.h"
+#include "menus.h"
 
 #define NO_INPUT '\0'
 
@@ -73,6 +74,8 @@ void *inputGetter(Game *game) {
 }
 
 int main() {
+
+    printTitleScreen();
 
     Game game;
     initGame(&game);
