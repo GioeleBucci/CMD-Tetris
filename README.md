@@ -26,5 +26,5 @@ You are free to modify and redistribute it, although crediting is appreciated
 ---
 
 <p align="center">
-  <img width="300" height="400" src="screenshots/gameplay.png">
+  <img width="250" height="300" src="screenshots/gameplay.png">
 </p>
