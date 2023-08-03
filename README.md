@@ -3,9 +3,9 @@
   <br>
 </div>
 
-<div align="center">
-![image](screenshots/title.png)
-</div>
+<p align="center">
+  <img width="460" height="300" src="screenshots/title.png">
+</p>
 
 ## Overview
 
@@ -21,10 +21,10 @@ The controls are:
 This software comes without any license or warranty.
 You are free to modify and redistribute it, although crediting is appreciated
 
-Note: Windows Defender will block the executable upon trying to run it for the first time
+*Note: Windows Defender will block the executable upon trying to run it for the first time*
 
 ---
 
-<div align="center">
-![image](screenshots/gameplay.png)
-</div>
+<p align="center">
+  <img width="300" height="400" src="screenshots/gameplay.png">
+</p>
