@@ -55,8 +55,6 @@ bool isCollision(const Game *game, int piece[4][4], int rowOffset, int colOffset
 
 void placeTetromino(Game *game, int type);
 
-Point2D getInputs(Game *game);
-
 /// print next piece box in the top right corner
 void printNext();
 

@@ -292,41 +292,6 @@ void placeTetromino(Game *game, int type) {
     }
 }
 
-Point2D getInputs(Game *game) {
-    fflush(stdin);
-    int input;
-    if (kbhit())
-        input = tolower(getch()); //kbhit() is a non-blocking input function
-    Point2D dir;
-    if (input == 'a') dir = newPoint2D(0, -1);
-    if (input == 'd') dir = newPoint2D(0, 1);
-
-    //handle rotations
-    if (input == 'z' || input == 'x') {
-        bool isClockwise = input == 'z' ? true : false;
-        // clone piece, rotate it and check for collisions
-        int newPiece[4][4];
-        for (int i = 0; i < 4; ++i)
-            for (int j = 0; j < 4; ++j)
-                newPiece[i][j] = currentPiece[i][j];
-        rotateTetromino(newPiece, currentPieceType, isClockwise);
-        if (!isCollision(game, newPiece, 0, 0))
-            rotateTetromino(currentPiece, currentPieceType, isClockwise);
-    }
-
-    // hard drop
-    /* In the original game if the piece was hard dropped, an amount equal
-     * to the number of rows covered by the hard drop plus 1 is added to the score */
-    if(input == ' '){
-        game->score++;
-        while(!isCollision(game, currentPiece, 1, 0)){
-            currentPieceRow++;
-            game->score++;
-        }
-    }
-    return dir;
-}
-
 /// returns the number of lines cleared
 int clearLines(Game *game) {
 

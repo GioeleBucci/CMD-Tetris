@@ -81,7 +81,7 @@ int main() {
     DWORD threadId;
 
     // Create a new thread that will run the inputGetter function
-    threadHandle = CreateThread(NULL, 0, inputGetter, &game, 0, &threadId);
+    threadHandle = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) inputGetter, &game, 0, &threadId);
     assert(threadHandle != NULL);
 
     clock_t t;
