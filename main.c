@@ -9,22 +9,28 @@
 #include "points2D.h"
 #include "tetris.h"
 
-int FPS = 24;
+#define NO_INPUT '\0'
 
-char input = '\0';
+/* Refresh rate of screen, also affects the speed at which tetrominoes fall.
+ * Does NOT affect the speed at which the tetromino can be moved/rotated
+ * Setting this to a low value may result in frame loss and visual glitches. */
+int FPS = 12;
+
+char input;
 
 /* --------------------------------------------------------------------------------- */
 
 void handleInput(Game *game) {
 
-    if(input == '\0')
-        return;
+    if(input == NO_INPUT) return;
 
-    //check left or right movement
+    //check left/right/down movement
     if (input == 'a' && !isCollision(game, currentPiece, 0, -1))
         currentPieceCol--;
     else if (input == 'd' && !isCollision(game, currentPiece, 0, 1))
         currentPieceCol++;
+    else if (input == 's' && !isCollision(game, currentPiece, 1, 0))
+        currentPieceRow++;
 
     //handle rotations
     if (input == 'z' || input == 'x') {
@@ -40,7 +46,7 @@ void handleInput(Game *game) {
     }
 
     // hard drop
-    /* In the original game if the piece was hard dropped, an amount equal
+    /* In the original game if the piece is hard dropped, an amount equal
      * to the number of rows covered by the hard drop plus 1 is added to the score */
     if (input == ' ') {
         game->score++;
@@ -51,17 +57,18 @@ void handleInput(Game *game) {
     }
 
     // reset input buffer
-    input = '\0';
+    input = NO_INPUT;
 }
 
 // Function to be executed by the new thread
 void *inputGetter(Game *game) {
+    input = NO_INPUT;
     while (1) {
         if (kbhit()) {
             input = tolower(getch());
         }
-        Sleep(10);
         handleInput(game);
+        Sleep(10);
     }
 }
 
@@ -73,7 +80,7 @@ int main() {
     HANDLE threadHandle;
     DWORD threadId;
 
-    // Create a new thread that will run the updateInputThread function
+    // Create a new thread that will run the inputGetter function
     threadHandle = CreateThread(NULL, 0, inputGetter, &game, 0, &threadId);
     assert(threadHandle != NULL);
 
@@ -93,6 +100,7 @@ int main() {
 
     printf("\033[%d;1H\n", HEIGHT + 1);
     puts("Game Over");
+
     CloseHandle(threadHandle);
     return 0;
 }
