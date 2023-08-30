@@ -16,13 +16,6 @@ The controls are:
 * `SPACE` for hard-dropping
 * `z` and `x` for rotating
 
-## License and distribution
-
-This software comes without any license or warranty.
-You are free to modify and redistribute it, although crediting is appreciated
-
-*Note: Windows Defender will block the executable upon trying to run it for the first time*
-
 ---
 
 <p align="center">
